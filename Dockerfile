@@ -13,16 +13,19 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Instal box64 on arm
-RUN if [ "$TARGETARCH" = "arm64" ] ; then \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y debian-keyring && \
-    curl -L https://ryanfortner.github.io/box64-debs/box64.list -o /etc/apt/sources.list.d/box64.list && \
-    curl -L https://ryanfortner.github.io/box64-debs/KEY.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/box64-debs-archive-keyring.gpg && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y box64 \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/* ;\
-    fi
+#RUN if [ "$TARGETARCH" = "arm64" ] ; then \
+#    apt-get update && \
+#    DEBIAN_FRONTEND=noninteractive apt-get install -y debian-keyring && \
+#    curl -L https://ryanfortner.github.io/box64-debs/box64.list -o /etc/apt/sources.list.d/box64.list && \
+#    curl -L https://ryanfortner.github.io/box64-debs/KEY.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/box64-debs-archive-keyring.gpg && \
+#    apt-get update && \
+#    DEBIAN_FRONTEND=noninteractive apt-get install -y box64 \
+#        && apt-get clean \
+#        && rm -rf /var/lib/apt/lists/* ;\
+#    fi
+RUN apt update && apt install -y git build-essential cmake
+RUN apt install -y python3
+RUN git clone https://github.com/ptitSeb/box64.git && cd box64 && mkdir build && cd build && cmake .. -DRPI4ARM64=ON -DCMAKE_BUILD_TYPE=Release && cmake --build . -j && make install
 
 EXPOSE 19132/udp
 
@@ -32,7 +35,7 @@ WORKDIR /data
 
 ENTRYPOINT ["/usr/local/bin/entrypoint-demoter", "--match", "/data", "--debug", "--stdin-on-term", "stop", "/opt/bedrock-entry.sh"]
 
-ARG EASY_ADD_VERSION=0.7.0
+ARG EASY_ADD_VERSION=0.7.2
 ADD https://github.com/itzg/easy-add/releases/download/${EASY_ADD_VERSION}/easy-add_linux_${TARGETARCH} /usr/local/bin/easy-add
 RUN chmod +x /usr/local/bin/easy-add
 
