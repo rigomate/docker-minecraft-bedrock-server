@@ -6,6 +6,8 @@
 
 ## Quickstart
 
+on an rpi, build with docker build . -t bedrock --build-arg TARGETARCH=arm64
+
 The following starts a Bedrock Dedicated Server running a default version and
 exposing the default UDP port: 
 
